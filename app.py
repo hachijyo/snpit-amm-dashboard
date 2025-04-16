@@ -1,23 +1,19 @@
 import streamlit as st
 import pandas as pd
 
-st.title("📊 SNPIT AMM CSV読み込みテスト")
+st.title("📊 SNPIT AMM ダッシュボード - CSV読み込み修正")
 
 try:
-    with open("snpit_amm_log.csv", "r", encoding="utf-8-sig") as f:
-        lines = f.readlines()
+    df = pd.read_csv("snpit_amm_log.csv", sep="\t", encoding="utf-8-sig")
 
-    # タブで分割して DataFrame 化
-    data = [line.strip().split("\t") for line in lines if line.strip()]
-    headers = data[0]
-    rows = data[1:]
-    df = pd.DataFrame(rows, columns=headers)
+    # BOM付きカラム名の修正
+    df.rename(columns={df.columns[0]: "date"}, inplace=True)
 
-    # 日付を変換
+    # 日付変換
     df["date"] = pd.to_datetime(df["date"], format="%Y/%m/%d", errors="coerce")
     df = df[df["date"].notna()]
 
-    # 数値列を明示的に float に変換（念のため）
+    # 数値列を float に変換（安全のため）
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
