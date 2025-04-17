@@ -42,9 +42,9 @@ try:
 
     # ==== グラフ2（積み上げ棒グラフ） ====
     fig2, ax = plt.subplots(figsize=(6, 4))
-    # 順番：in_other → in_from_operator、out_to_operator → out_other
-    ax.bar(df["date"], df["in_other"] / 1e6, label="in: others", color="#ffd9b3")
-    ax.bar(df["date"], df["in_from_operator"] / 1e6, bottom=df["in_other"] / 1e6, label="in: operator", color="orange")
+    # 順番：in_from_operator（下）、in_other（上）、out_other（下）、out_to_operator（上）
+    ax.bar(df["date"], df["in_from_operator"] / 1e6, label="in: operator", color="orange")
+    ax.bar(df["date"], df["in_other"] / 1e6, bottom=df["in_from_operator"] / 1e6, label="in: others", color="#ffd9b3")
     ax.bar(df["date"], -df["out_to_operator"] / 1e6, label="out: operator", color="blue")
     ax.bar(df["date"], -df["out_other"] / 1e6, bottom=-df["out_to_operator"] / 1e6, label="out: others", color="#b3d1ff")
 
