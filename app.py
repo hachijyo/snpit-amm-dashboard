@@ -21,7 +21,7 @@ try:
     df["balance_million"] = df["balance"] / 1e6
 
     # ==== グラフ1 ====
-    st.subheader("SNPT zandaka to torihiki kensu no suii")
+    st.subheader("SNPT残高と取引件数の推移")
     fig1, ax1 = plt.subplots(figsize=(10, 5))
     ax1.set_ylabel("torihiki kensu", color='tab:blue')
     ax1.plot(df["date"], df["number"], color='tab:blue')
@@ -40,7 +40,7 @@ try:
     st.pyplot(fig1)
 
     # ==== グラフ2 ====
-    st.subheader("SNPT IN / OUT")
+    st.subheader("流入と流出の推移")
     df.rename(columns={"in_total": "SNPT IN", "out_total": "SNPT OUT"}, inplace=True)
     fig2, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df["date"], df["SNPT IN"], label="SNPT IN", color="tab:orange")
