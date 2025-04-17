@@ -19,8 +19,8 @@ try:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df["balance_million"] = df["balance"] / 1e6
-    df["in_other"] = df["in_total"] - df["in_from_operator"]
-    df["out_other"] = df["out_total"] - df["out_to_operator"]
+    df["in_user"] = df["in_total"] - df["in_from_operator"]
+    df["out_user"] = df["out_total"] - df["out_to_operator"]
 
     # ==== グラフ1 ====
     fig1, ax1 = plt.subplots(figsize=(6, 4))
@@ -42,16 +42,21 @@ try:
 
     # ==== グラフ2（積み上げ棒グラフ） ====
     fig2, ax = plt.subplots(figsize=(6, 4))
-    # 順番：in_from_operator（下）、in_other（上）、out_other（下）、out_to_operator（上）
     ax.bar(df["date"], df["in_from_operator"] / 1e6, label="in: operator", color="orange")
-    ax.bar(df["date"], df["in_other"] / 1e6, bottom=df["in_from_operator"] / 1e6, label="in: others", color="#ffd9b3")
+    ax.bar(df["date"], df["in_user"] / 1e6, bottom=df["in_from_operator"] / 1e6, label="in: user", color="#ffd9b3")
     ax.bar(df["date"], -df["out_to_operator"] / 1e6, label="out: operator", color="blue")
-    ax.bar(df["date"], -df["out_other"] / 1e6, bottom=-df["out_to_operator"] / 1e6, label="out: others", color="#b3d1ff")
+    ax.bar(df["date"], -df["out_user"] / 1e6, bottom=-df["out_to_operator"] / 1e6, label="out: user", color="#b3d1ff")
 
     ax.axhline(0, color='black', linewidth=0.5)
     ax.set_ylabel("SNPT (Million)")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
-    ax.legend(title="")
+
+    handles, labels = ax.get_legend_handles_labels()
+    order = ['in: user', 'in: operator', 'out: operator', 'out: user']
+    sorted_handles = [h for l in order for h, label in zip(handles, labels) if label == l]
+    sorted_labels = order
+    ax.legend(sorted_handles, sorted_labels, title="")
+
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     for label in ax.get_xticklabels():
@@ -65,7 +70,7 @@ try:
         st.pyplot(fig1)
 
     with col2:
-        st.subheader("流入・流出（運営/その他）")
+        st.subheader("SNPT流入・流出（うち運営※operator）")
         st.pyplot(fig2)
 
     st.success("✅ Chart rendering complete")
