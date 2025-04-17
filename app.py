@@ -19,6 +19,8 @@ try:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df["balance_million"] = df["balance"] / 1e6
+    df["in_other"] = df["in_total"] - df["in_from_operator"]
+    df["out_other"] = df["out_total"] - df["out_to_operator"]
 
     # ==== グラフ1 ====
     fig1, ax1 = plt.subplots(figsize=(6, 4))
@@ -38,30 +40,11 @@ try:
     for label in ax1.get_xticklabels():
         label.set_rotation(90)
 
-    # ==== グラフ2 ====
-    df.rename(columns={"in_total": "SNPT IN", "out_total": "SNPT OUT"}, inplace=True)
+    # ==== グラフ2（積み上げ棒グラフ） ====
     fig2, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(df["date"], df["SNPT IN"], label="SNPT IN", color="tab:orange")
-    ax.plot(df["date"], df["SNPT OUT"], label="SNPT OUT", color="tab:blue")
-    ax.set_ylabel("SNPT")
-    ax.legend(title="")
-    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    for label in ax.get_xticklabels():
-        label.set_rotation(90)
+    ax.bar(df["date"], df["in_from_operator"], label="in: operator", color="orange")
+    ax.bar(df["date"], df["in_other"], bottom=df["in_from_operator"], label="in: others", color="#ffd9b3")
+    ax.bar(df["date"], -df["out_to_operator"], label="out: operator", color="blue")
+    ax.bar(df["date"], -df["out_other"], bottom=-df["out_to_operator"], label="out: others", color="#b3d1ff")
 
-    # ==== 横並びレイアウト ====
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("SNPT残高と取引件数の推移")
-        st.pyplot(fig1)
-
-    with col2:
-        st.subheader("流入と流出の推移")
-        st.pyplot(fig2)
-
-    st.success("✅ Chart rendering complete")
-
-except Exception as e:
-    st.error(f"❌ Error occurred: {e}")
+    ax.axhline(0, color
