@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
-st.title("📊 SNPIT AMM ダッシュボード")
+st.title("📊 SNPIT AMM")
 
 try:
     # CSV読み込み
@@ -14,21 +15,33 @@ try:
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # ==== グラフ1: SNTP残高とTransfer数 ====
-    st.subheader("SNTP残高とTransfer数の推移")
+    # SNTP残高を100単位に変換
+    df["balance_100"] = df["balance"] / 100
+
+    # ==== グラフ1: 取引件数とSNTP残高 ====
+    st.subheader("SNTP残高と取引件数の推移")
     fig1, ax1 = plt.subplots()
-    ax1.set_ylabel("Balance", color='tab:blue')
-    df.plot(x="date", y="balance", ax=ax1, legend=False, color='tab:blue')
+    ax1.set_ylabel("取引件数", color='tab:blue')
+    df.plot(x="date", y="number", ax=ax1, legend=False, color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+
     ax2 = ax1.twinx()
-    ax2.set_ylabel("Transfer", color='tab:orange')
-    df.plot(x="date", y="number", ax=ax2, legend=False, color='tab:orange')
+    ax2.set_ylabel("SNTP残高（100単位）", color='tab:orange')
+    df.plot(x="date", y="balance_100", ax=ax2, legend=False, color='tab:orange')
+    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+    ax1.get_legend().remove() if ax1.get_legend() else None
+    ax2.get_legend().remove() if ax2.get_legend() else None
     st.pyplot(fig1)
 
-    # ==== グラフ2: in_total と out_total ====
+    # ==== グラフ2: 流入と流出 ====
     st.subheader("流入と流出の推移")
     fig2, ax = plt.subplots()
-    df.plot(x="date", y=["in_total", "out_total"], ax=ax)
+    df.rename(columns={"in_total": "流入", "out_total": "流出"}, inplace=True)
+    df.plot(x="date", y=["流入", "流出"], ax=ax, color=["tab:orange", "tab:blue"])
     ax.set_ylabel("SNTP")
+    if ax.get_legend():
+        ax.get_legend().set_title("")
     st.pyplot(fig2)
 
     st.success("✅ グラフ表示完了！")
