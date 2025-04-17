@@ -5,7 +5,6 @@ import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
 import matplotlib
 
-# ✅ フォント指定を削除（Streamlit Cloudの環境に依存）
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="SNPIT AMM", layout="wide")
@@ -22,14 +21,14 @@ try:
     df["balance_million"] = df["balance"] / 1e6
 
     # ==== グラフ1 ====
-    st.subheader("SNPT残高と取引件数の推移")
+    st.subheader("SNPT zandaka to torihiki kensu no suii")
     fig1, ax1 = plt.subplots(figsize=(10, 5))
-    ax1.set_ylabel("取引件数", color='tab:blue')
+    ax1.set_ylabel("torihiki kensu", color='tab:blue')
     ax1.plot(df["date"], df["number"], color='tab:blue')
     ax1.tick_params(axis='y', labelcolor='tab:blue')
 
     ax2 = ax1.twinx()
-    ax2.set_ylabel("SNPT残高（100万単位）", color='tab:orange')
+    ax2.set_ylabel("SNPT zandaka", color='tab:orange')
     ax2.plot(df["date"], df["balance_million"], color='tab:orange')
     ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
@@ -41,11 +40,11 @@ try:
     st.pyplot(fig1)
 
     # ==== グラフ2 ====
-    st.subheader("流入と流出の推移")
-    df.rename(columns={"in_total": "流入", "out_total": "流出"}, inplace=True)
+    st.subheader("SNPT IN / OUT")
+    df.rename(columns={"in_total": "SNPT IN", "out_total": "SNPT OUT"}, inplace=True)
     fig2, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(df["date"], df["流入"], label="流入", color="tab:orange")
-    ax.plot(df["date"], df["流出"], label="流出", color="tab:blue")
+    ax.plot(df["date"], df["SNPT IN"], label="SNPT IN", color="tab:orange")
+    ax.plot(df["date"], df["SNPT OUT"], label="SNPT OUT", color="tab:blue")
     ax.set_ylabel("SNPT")
     ax.legend(title="")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -54,7 +53,7 @@ try:
         label.set_rotation(90)
     st.pyplot(fig2)
 
-    st.success("✅ グラフ表示完了")
+    st.success("✅ Chart rendering complete")
 
 except Exception as e:
-    st.error(f"❌ エラー発生: {e}")
+    st.error(f"❌ Error occurred: {e}")
