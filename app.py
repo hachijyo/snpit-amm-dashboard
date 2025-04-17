@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import matplotlib
+
+# ✅ 日本語フォント指定（文字化け防止）
+matplotlib.rcParams['font.family'] = 'IPAexGothic'
 
 st.title("📊 SNPIT AMM")
 
@@ -15,7 +19,7 @@ try:
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # SNTP残高を100単位に変換
+    # SNTP残高を100単位に変換（内部処理用）
     df["balance_100"] = df["balance"] / 100
 
     # ==== グラフ1: 取引件数とSNTP残高 ====
@@ -26,7 +30,7 @@ try:
     ax1.tick_params(axis='y', labelcolor='tab:blue')
 
     ax2 = ax1.twinx()
-    ax2.set_ylabel("SNTP残高（100単位）", color='tab:orange')
+    ax2.set_ylabel("SNTP残高", color='tab:orange')
     df.plot(x="date", y="balance_100", ax=ax2, legend=False, color='tab:orange')
     ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:,.0f}'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
