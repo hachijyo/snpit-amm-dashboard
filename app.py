@@ -5,8 +5,7 @@ import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
 import matplotlib
 
-# ✅ Streamlit Cloud 互換のフォント設定（日本語表示）
-matplotlib.rcParams['font.sans-serif'] = ['Noto Sans CJK JP', 'IPAPGothic', 'TakaoGothic', 'VL Gothic', 'DejaVu Sans']
+# ✅ フォント指定を削除（Streamlit Cloudの環境に依存）
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="SNPIT AMM", layout="wide")
@@ -37,7 +36,8 @@ try:
 
     ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    fig1.autofmt_xdate(rotation=30)
+    for label in ax1.get_xticklabels():
+        label.set_rotation(90)
     st.pyplot(fig1)
 
     # ==== グラフ2 ====
@@ -50,7 +50,8 @@ try:
     ax.legend(title="")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    fig2.autofmt_xdate(rotation=30)
+    for label in ax.get_xticklabels():
+        label.set_rotation(90)
     st.pyplot(fig2)
 
     st.success("✅ グラフ表示完了")
