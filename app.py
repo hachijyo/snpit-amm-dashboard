@@ -42,14 +42,16 @@ try:
 
     # ==== グラフ2（積み上げ棒グラフ） ====
     fig2, ax = plt.subplots(figsize=(6, 4))
-    ax.bar(df["date"], df["in_from_operator"], label="in: operator", color="orange")
-    ax.bar(df["date"], df["in_other"], bottom=df["in_from_operator"], label="in: others", color="#ffd9b3")
-    ax.bar(df["date"], -df["out_to_operator"], label="out: operator", color="blue")
-    ax.bar(df["date"], -df["out_other"], bottom=-df["out_to_operator"], label="out: others", color="#b3d1ff")
+    # 順番：in_other（上）、in_from_operator（下）、out_other（上）、out_to_operator（下）
+    ax.bar(df["date"], df["in_other"] / 1e6, label="in: others", color="#ffd9b3")
+    ax.bar(df["date"], df["in_from_operator"] / 1e6, bottom=df["in_other"] / 1e6, label="in: operator", color="orange")
+    ax.bar(df["date"], -df["out_other"] / 1e6, label="out: others", color="#b3d1ff")
+    ax.bar(df["date"], -df["out_to_operator"] / 1e6, bottom=-df["out_other"] / 1e6, label="out: operator", color="blue")
 
     ax.axhline(0, color='black', linewidth=0.5)
-    ax.set_ylabel("SNPT")
-    ax.legend()
+    ax.set_ylabel("SNPT (Million)")
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
+    ax.legend(title="")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     for label in ax.get_xticklabels():
