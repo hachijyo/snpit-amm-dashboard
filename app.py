@@ -48,7 +48,7 @@ try:
     ax.bar(df["date"], -df["out_user"] / 1e6, bottom=-df["out_to_operator"] / 1e6, label="out: user", color="#b3d1ff")
 
     ax.axhline(0, color='black', linewidth=0.5)
-    ax.set_ylabel("SNPT (Million)")
+    ax.set_ylabel("SNPT")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
 
     handles, labels = ax.get_legend_handles_labels()
