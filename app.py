@@ -19,20 +19,20 @@ try:
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # SNTP残高を100単位に変換（内部処理用）
-    df["balance_100"] = df["balance"] / 100
+    # SNPT残高を100万単位に変換
+    df["balance_million"] = df["balance"] / 1e6
 
-    # ==== グラフ1: 取引件数とSNTP残高 ====
-    st.subheader("SNTP残高と取引件数の推移")
+    # ==== グラフ1: 取引件数とSNPT残高 ====
+    st.subheader("SNPT残高と取引件数の推移")
     fig1, ax1 = plt.subplots()
     ax1.set_ylabel("取引件数", color='tab:blue')
     df.plot(x="date", y="number", ax=ax1, legend=False, color='tab:blue')
     ax1.tick_params(axis='y', labelcolor='tab:blue')
 
     ax2 = ax1.twinx()
-    ax2.set_ylabel("SNTP残高", color='tab:orange')
-    df.plot(x="date", y="balance_100", ax=ax2, legend=False, color='tab:orange')
-    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:,.0f}'))
+    ax2.set_ylabel("SNPT残高（100万単位）", color='tab:orange')
+    df.plot(x="date", y="balance_million", ax=ax2, legend=False, color='tab:orange')
+    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
     ax1.get_legend().remove() if ax1.get_legend() else None
     ax2.get_legend().remove() if ax2.get_legend() else None
@@ -43,7 +43,7 @@ try:
     fig2, ax = plt.subplots()
     df.rename(columns={"in_total": "流入", "out_total": "流出"}, inplace=True)
     df.plot(x="date", y=["流入", "流出"], ax=ax, color=["tab:orange", "tab:blue"])
-    ax.set_ylabel("SNTP")
+    ax.set_ylabel("SNPT")
     if ax.get_legend():
         ax.get_legend().set_title("")
     st.pyplot(fig2)
