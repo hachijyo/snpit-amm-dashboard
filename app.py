@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib
 
-# ✅ 日本語フォント指定（文字化け防止）
-matplotlib.rcParams['font.family'] = 'IPAexGothic'
+# ✅ 日本語フォント指定（Streamlit Cloud対応）
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK JP'
 
 st.title("📊 SNPIT AMM")
 
