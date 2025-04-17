@@ -47,4 +47,26 @@ try:
     ax.bar(df["date"], -df["out_to_operator"], label="out: operator", color="blue")
     ax.bar(df["date"], -df["out_other"], bottom=-df["out_to_operator"], label="out: others", color="#b3d1ff")
 
-    ax.axhline(0, color
+    ax.axhline(0, color='black', linewidth=0.5)
+    ax.set_ylabel("SNPT")
+    ax.legend()
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    for label in ax.get_xticklabels():
+        label.set_rotation(90)
+
+    # ==== 横並びレイアウト ====
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("SNPT残高と取引件数の推移")
+        st.pyplot(fig1)
+
+    with col2:
+        st.subheader("流入・流出（運営/その他）")
+        st.pyplot(fig2)
+
+    st.success("✅ Chart rendering complete")
+
+except Exception as e:
+    st.error(f"❌ Error occurred: {e}")
