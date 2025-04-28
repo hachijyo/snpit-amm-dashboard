@@ -51,6 +51,11 @@ try:
     ax.set_ylabel("SNPT")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
 
+    # メイン目盛り1.0M、サブ目盛り0.5Mを追加
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
+    ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.5))
+    ax.grid(which='minor', linestyle=':', linewidth=0.5, color='gray')
+
     handles, labels = ax.get_legend_handles_labels()
     order = ['in: user', 'in: operator', 'out: operator', 'out: user']
     sorted_handles = [h for l in order for h, label in zip(handles, labels) if label == l]
