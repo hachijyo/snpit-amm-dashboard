@@ -18,9 +18,15 @@ try:
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
+    df = df.sort_values("date")
+
     df["balance_million"] = df["balance"] / 1e6
     df["in_user"] = df["in_total"] - df["in_from_operator"]
     df["out_user"] = df["out_total"] - df["out_to_operator"]
+
+    # 隣り合う日付の最小間隔を求めてバー幅設定
+    min_diff_days = (df["date"].diff().dropna().min()).days
+    bar_width = min_diff_days * 0.8 if min_diff_days > 0 else 0.8
 
     # ==== グラフ1 ====
     fig1, ax1 = plt.subplots(figsize=(6, 4))
@@ -30,7 +36,6 @@ try:
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("SNPT zandaka", color='tab:orange')
-    bar_width = 0.99
     ax2.bar(df["date"], df["balance_million"], width=bar_width, color='tab:orange', alpha=0.6, label="SNPT zandaka")
     ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
@@ -51,7 +56,6 @@ try:
     ax.set_ylabel("SNPT")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
 
-    # メイン目盛り1.0M、サブ目盛り0.5Mを追加
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.5))
     ax.grid(which='minor', linestyle=':', linewidth=0.5, color='gray')
