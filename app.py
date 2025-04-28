@@ -32,7 +32,7 @@ try:
     ax2.set_ylabel("SNPT zandaka", color='tab:orange')
     bar_width = 0.99
     ax2.bar(df["date"], df["balance_million"], width=bar_width, color='tab:orange', alpha=0.6, label="SNPT zandaka")
-    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
+    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
 
     ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -49,7 +49,7 @@ try:
 
     ax.axhline(0, color='black', linewidth=0.5)
     ax.set_ylabel("SNPT")
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.1f}M'))
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
 
     # メイン目盛り1.0M、サブ目盛り0.5Mを追加
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
