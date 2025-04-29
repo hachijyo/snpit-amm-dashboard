@@ -55,7 +55,6 @@ try:
     ax.axhline(0, color='black', linewidth=0.5)
     ax.set_ylabel("SNPT")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
-
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.5))
     ax.grid(which='minor', linestyle=':', linewidth=0.5, color='gray')
