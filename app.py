@@ -25,11 +25,11 @@ try:
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
     # ==== 表の表示（2行分） ====
-        display_df = df[[
-        "date", "snpt", "balance", "in_total", "in_from_operator",
-        "out_total", "out_to_operator", "number"
-    ]].copy()
-    display_df = display_df.sort_values("date", ascending=False)
+    display_df = df[[
+    "date", "snpt", "balance", "in_total", "in_from_operator",
+    "out_total", "out_to_operator", "number"
+]].copy()
+display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
     display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
         display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
