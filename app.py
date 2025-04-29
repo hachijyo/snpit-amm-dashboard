@@ -27,18 +27,22 @@ try:
     # ==== 表を表示 ====
     display_df = df[[
         "date", "snpt", "balance", "in_total", "in_from_operator",
-        "out_total", "out_to_operator", "number"
+        "out_total", "out_to_operator", "number",
+        "rate", "event", "memo"
     ]].copy()
 
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
     display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
         display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
-    display_df["rate"] = ""
-    display_df["event"] = ""
-    display_df["memo"] = ""
+
+    # 上書き処理は削除済み（以下は削除）
+    # display_df["rate"] = ""
+    # display_df["event"] = ""
+    # display_df["memo"] = ""
 
     st.dataframe(display_df, use_container_width=True, height=400)
+
 
     # ==== グラフ1 ====
     fig1, ax1 = plt.subplots(figsize=(6, 4))
