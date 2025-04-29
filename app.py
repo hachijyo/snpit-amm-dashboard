@@ -24,10 +24,12 @@ try:
     df["in_user"] = df["in_total"] - df["in_from_operator"]
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
+    # ==== 表を表示 ====
     display_df = df[[
         "date", "snpt", "balance", "in_total", "in_from_operator",
         "out_total", "out_to_operator", "number"
     ]].copy()
+
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
     display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
@@ -35,52 +37,8 @@ try:
     display_df["rate"] = ""
     display_df["event"] = ""
     display_df["memo"] = ""
-    st.dataframe(display_df, use_container_width=True, height=400)
-    display_df = df[[
-        "date", "snpt", "balance", "in_total", "in_from_operator",
-        "out_total", "out_to_operator", "number"
-    ]].copy()
-    display_df = display_df.sort_values("date", ascending=False)
-    display_df["date"] = display_df["date"].dt.date
-    display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
-        display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
-    display_df["rate"] = ""
-    display_df["event"] = ""
-    display_df["memo"] = ""
-    st.dataframe(display_df, use_container_width=True, height=400)
-    df = pd.read_csv("snpit_amm_log.csv", encoding="utf-8-sig")
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    df = df[df["date"].notna()]
-
-    for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    df = df.sort_values("date")
-
-    df["balance_million"] = df["balance"] / 1e6
-    df["in_user"] = df["in_total"] - df["in_from_operator"]
-    df["out_user"] = df["out_total"] - df["out_to_operator"]
-
-    # ==== 表の表示（2行分） ====
-        display_df = df[[
-        "date", "snpt", "balance", "in_total", "in_from_operator",
-        "out_total", "out_to_operator", "number"
-    ]].copy()
-    display_df = display_df.sort_values("date", ascending=False)
-    display_df["date"] = display_df["date"].dt.date
-    display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
-        display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
-
-    # 空のカラム追加
-    display_df["rate"] = ""
-    display_df["event"] = ""
-    display_df["memo"] = ""
 
     st.dataframe(display_df, use_container_width=True, height=400)
-
-    # 隣り合う日付の最小間隔を求めてバー幅設定
-    min_diff_days = (df["date"].diff().dropna().min()).days
-    bar_width = min_diff_days * 0.8 if min_diff_days > 0 else 0.8
 
     # ==== グラフ1 ====
     fig1, ax1 = plt.subplots(figsize=(6, 4))
@@ -90,8 +48,9 @@ try:
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("SNPT zandaka", color='tab:orange')
+    bar_width = 0.99
     ax2.bar(df["date"], df["balance_million"], width=bar_width, color='tab:orange', alpha=0.6, label="SNPT zandaka")
-    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
+    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.0f}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
 
     ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -99,7 +58,7 @@ try:
     for label in ax1.get_xticklabels():
         label.set_rotation(90)
 
-    # ==== グラフ2（積み上げ棒グラフ） ====
+    # ==== グラフ2（積み上げ棒グラフ）====
     fig2, ax = plt.subplots(figsize=(6, 4))
     ax.bar(df["date"], df["in_from_operator"] / 1e6, label="in: operator", color="orange")
     ax.bar(df["date"], df["in_user"] / 1e6, bottom=df["in_from_operator"] / 1e6, label="in: user", color="#ffd9b3")
@@ -108,10 +67,7 @@ try:
 
     ax.axhline(0, color='black', linewidth=0.5)
     ax.set_ylabel("SNPT")
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x)}M'))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
-    ax.yaxis.set_minor_locator(ticker.MultipleLocator(0.5))
-    ax.grid(which='minor', linestyle=':', linewidth=0.5, color='gray')
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.0f}M'))
 
     handles, labels = ax.get_legend_handles_labels()
     order = ['in: user', 'in: operator', 'out: operator', 'out: user']
