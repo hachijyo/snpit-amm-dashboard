@@ -26,10 +26,19 @@ try:
 
     # ==== 表を表示 ====
     display_df = df[[
-        "date", "snpt", "balance", "in_total", "in_from_operator",
-        "out_total", "out_to_operator", "number",
-        "rate", "event", "memo"
+    "date",               # 日付
+    "snpt",               # トークン価格
+    "rate",               # 任意のレート評価
+    "balance",            # SNPT残高
+    "number",             # 取引件数
+    "event",              # イベント記録
+    "memo",               # 備考
+    "in_total",           # 総流入
+    "in_from_operator",   # 運営からの流入
+    "out_total",          # 総流出
+    "out_to_operator"     # 運営への流出
     ]].copy()
+
 
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
