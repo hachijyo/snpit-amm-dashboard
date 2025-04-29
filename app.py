@@ -12,7 +12,7 @@ st.title("📊 SNPIT AMM")
 
 try:
     df = pd.read_csv("snpit_amm_log.csv", encoding="utf-8-sig")
-    df["date"] = pd.to_datetime(df["date"], errors="coerce"), errors="coerce")
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df[df["date"].notna()]
 
     for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]:
