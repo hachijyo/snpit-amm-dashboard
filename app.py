@@ -11,6 +11,18 @@ st.set_page_config(page_title="SNPIT AMM", layout="wide")
 st.title("📊 SNPIT AMM")
 
 try:
+    display_df = df[[
+        "date", "snpt", "balance", "in_total", "in_from_operator",
+        "out_total", "out_to_operator", "number"
+    ]].copy()
+    display_df = display_df.sort_values("date", ascending=False)
+    display_df["date"] = display_df["date"].dt.date
+    display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
+        display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
+    display_df["rate"] = ""
+    display_df["event"] = ""
+    display_df["memo"] = ""
+    st.dataframe(display_df, use_container_width=True, height=400)
     df = pd.read_csv("snpit_amm_log.csv", encoding="utf-8-sig")
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df[df["date"].notna()]
