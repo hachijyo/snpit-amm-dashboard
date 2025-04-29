@@ -24,6 +24,22 @@ try:
     df["in_user"] = df["in_total"] - df["in_from_operator"]
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
+    # ==== 表の表示（2行分） ====
+    display_df = df[[
+        "date", "token", "balance", "in_total", "in_from_operator",
+        "out_total", "out_to_operator", "number"
+    ]].copy()
+    display_df["date"] = display_df["date"].dt.date
+    display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
+        display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
+
+    # 空のカラム追加
+    display_df["rate"] = ""
+    display_df["event"] = ""
+    display_df["memo"] = ""
+
+    st.dataframe(display_df, use_container_width=True, height=400)
+
     # 隣り合う日付の最小間隔を求めてバー幅設定
     min_diff_days = (df["date"].diff().dropna().min()).days
     bar_width = min_diff_days * 0.8 if min_diff_days > 0 else 0.8
