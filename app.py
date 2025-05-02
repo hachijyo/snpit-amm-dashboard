@@ -93,14 +93,44 @@ try:
     for label in ax.get_xticklabels():
         label.set_rotation(90)
 
-    # ==== 横並びレイアウト ====
-    col1, col2 = st.columns(2)
 
-    with col1:
+    # ==== グラフ3（トークン価格と比率）====
+    fig3, ax1 = plt.subplots(figsize=(6, 4))
+
+    # SNPT価格（左軸）
+    ax1.plot(df["date"], df["snpt"], color="blue", label="SNPT")
+    ax1.set_ylabel("SNPT", color="blue")
+    ax1.tick_params(axis="y", labelcolor="blue")
+
+    # 比率（右軸）
+    ax2 = ax1.twinx()
+    ax2.plot(df["date"], df["rate"], color="orange", label="Rate")
+    ax2.set_ylabel("Rate", color="orange")
+    ax2.tick_params(axis="y", labelcolor="orange")
+
+    # X軸設定
+    ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    for label in ax1.get_xticklabels():
+        label.set_rotation(90)
+
+    # ==== 2行目（横2列：左にグラフ3）====
+    row2_col1, row2_col2 = st.columns(2)
+
+    with row2_col1:
+        st.subheader("SNPT価格と交換レートの推移")
+        st.pyplot(fig3)
+
+
+
+    # ==== 横並びレイアウト ====
+    row3_col1, row3_col2 = st.columns(2)
+
+    with row3_col1:
         st.subheader("SNPT残高と取引件数の推移")
         st.pyplot(fig1)
 
-    with col2:
+    with row3_col2:
         st.subheader("SNPT流入・流出（うち運営※operator）")
         st.pyplot(fig2)
 
