@@ -122,7 +122,8 @@ try:
         yaxis=dict(title="SNPT", side="left"),
         yaxis2=dict(title="Rate", overlaying="y", side="right"),
         height=400,
-        legend=dict(x=0.01, y=0.99)
+        legend=dict(x=0.01, y=0.99),
+        margin=dict(l=40, r=40, t=40, b=40)
     )
 
     # ==== 2行目（横2列：左にグラフ3）====
@@ -130,10 +131,13 @@ try:
 
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
-        selected_points = plotly_events(fig3, click_event=True, hover_event=False)
-#        st.plotly_chart(fig3, use_container_width=True)
 
-        # クリックされた日付のメモ表示
+        # グラフ描画（きれいな見た目を保つ）
+        st.plotly_chart(fig3, use_container_width=True)
+
+        # クリックイベント取得だけ（非表示で）
+        selected_points = plotly_events(fig3, click_event=True, hover_event=False, override_height=0)
+
         if selected_points:
             clicked_date = selected_points[0]["x"]
             matched_row = df[df["date"] == pd.to_datetime(clicked_date)]
