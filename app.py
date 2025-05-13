@@ -6,6 +6,7 @@ import matplotlib.dates as mdates
 import matplotlib
 import plotly.graph_objects as go
 from streamlit_plotly_events import plotly_events
+import altair as alt
 
 matplotlib.rcParams['axes.unicode_minus'] = False
 
@@ -96,57 +97,56 @@ try:
         label.set_rotation(90)
 
 
-    # ==== グラフ3（Plotly: SNPT価格と交換レート）====
-    fig3 = go.Figure()
+    # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック表示） ====
 
-    # SNPT価格（左軸）
-    fig3.add_trace(go.Scatter(
-        x=df["date"], y=df["snpt"],
-        name="SNPT", yaxis="y1",
-        mode="lines+markers",
-        line=dict(color="blue")
-    ))
+    # 必要なカラムだけ抽出
+    source = df[["date", "snpt", "rate", "event"]].copy()
 
-    # 交換レート（右軸）
-    fig3.add_trace(go.Scatter(
-        x=df["date"], y=df["rate"],
-        name="Rate", yaxis="y2",
-        mode="lines+markers",
-        line=dict(color="orange")
-    ))
+    # 日付選択（クリック）機能
+    selector = alt.selection_single(fields=["date"], nearest=True, empty="none")
 
-    # 両軸設定
-    fig3.update_layout(
-        title="SNPT価格と交換レートの推移",
-        xaxis=dict(title="Date"),
-        yaxis=dict(title="SNPT", side="left"),
-        yaxis2=dict(title="Rate", overlaying="y", side="right"),
-        height=400,
-        legend=dict(x=0.01, y=0.99),
-        margin=dict(l=40, r=40, t=40, b=40)
+    # SNPT価格ライン
+    line_snpt = alt.Chart(source).mark_line(color="blue").encode(
+        x="date:T",
+        y=alt.Y("snpt:Q", title="SNPT"),
+        tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
     )
 
-    # ==== 2行目（横2列：左にグラフ3）====
+    # Rateライン
+    line_rate = alt.Chart(source).mark_line(color="orange").encode(
+        x="date:T",
+        y=alt.Y("rate:Q", title="Rate"),
+        tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
+    )
+
+    # クリックポイント（透明マーカー）
+    points = alt.Chart(source).mark_point().encode(
+        x="date:T",
+        opacity=alt.value(0)
+    ).add_selection(selector)
+
+    # eventテキスト表示
+    event_text = alt.Chart(source).mark_text(
+        align="left", dx=5, dy=-5, fontSize=12
+    ).encode(
+        x="date:T",
+        y="rate:Q",
+        text="event:N"
+    ).transform_filter(selector)
+
+    # 統合チャート
+    chart = (line_snpt + line_rate + points + event_text).properties(
+        width=600,
+        height=300,
+        title="SNPT価格と交換レートの推移（クリックでevent表示）"
+    )
+
+    # ==== 2行目左側に表示 ====
     row2_col1, row2_col2 = st.columns(2)
 
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
-
-        # グラフ描画（きれいな見た目を保つ）
-        st.plotly_chart(fig3, use_container_width=True)
-
-        # クリックイベント取得だけ（非表示で）
-        selected_points = plotly_events(fig3, click_event=True, hover_event=False, override_height=0)
-
-        if selected_points:
-            clicked_date = selected_points[0]["x"]
-            matched_row = df[df["date"] == pd.to_datetime(clicked_date)]
-            if not matched_row.empty:
-                memo_text = matched_row.iloc[0]["memo"]
-                if pd.notna(memo_text) and memo_text.strip():
-                    st.info(f"📝 {clicked_date.date()} のメモ: {memo_text}")
-                else:
-                    st.info(f"📝 {clicked_date.date()} のメモはありません")
+        st.altair_chart(chart, use_container_width=True)
 
 
 
