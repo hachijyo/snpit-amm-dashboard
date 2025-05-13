@@ -131,7 +131,7 @@ try:
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
         selected_points = plotly_events(fig3, click_event=True, hover_event=False)
-        st.plotly_chart(fig3, use_container_width=True)
+#        st.plotly_chart(fig3, use_container_width=True)
 
         # クリックされた日付のメモ表示
         if selected_points:
