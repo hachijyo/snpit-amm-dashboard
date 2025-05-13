@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
 import matplotlib
+import plotly.graph_objects as go
+from streamlit_plotly_events import plotly_events
 
 matplotlib.rcParams['axes.unicode_minus'] = False
 
@@ -94,32 +96,53 @@ try:
         label.set_rotation(90)
 
 
-    # ==== グラフ3（トークン価格と比率）====
-    fig3, ax1 = plt.subplots(figsize=(6, 4))
+    # ==== グラフ3（Plotly: SNPT価格と交換レート）====
+    fig3 = go.Figure()
 
     # SNPT価格（左軸）
-    ax1.plot(df["date"], df["snpt"], color="blue", label="SNPT")
-    ax1.set_ylabel("SNPT", color="blue")
-    ax1.tick_params(axis="y", labelcolor="blue")
+    fig3.add_trace(go.Scatter(
+        x=df["date"], y=df["snpt"],
+        name="SNPT", yaxis="y1",
+        mode="lines+markers",
+        line=dict(color="blue")
+    ))
 
-    # 比率（右軸）
-    ax2 = ax1.twinx()
-    ax2.plot(df["date"], df["rate"], color="orange", label="Rate")
-    ax2.set_ylabel("Rate", color="orange")
-    ax2.tick_params(axis="y", labelcolor="orange")
+    # 交換レート（右軸）
+    fig3.add_trace(go.Scatter(
+        x=df["date"], y=df["rate"],
+        name="Rate", yaxis="y2",
+        mode="lines+markers",
+        line=dict(color="orange")
+    ))
 
-    # X軸設定
-    ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
-    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    for label in ax1.get_xticklabels():
-        label.set_rotation(90)
+    # 両軸設定
+    fig3.update_layout(
+        title="SNPT価格と交換レートの推移",
+        xaxis=dict(title="Date"),
+        yaxis=dict(title="SNPT", side="left"),
+        yaxis2=dict(title="Rate", overlaying="y", side="right"),
+        height=400,
+        legend=dict(x=0.01, y=0.99)
+    )
 
     # ==== 2行目（横2列：左にグラフ3）====
     row2_col1, row2_col2 = st.columns(2)
 
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
-        st.pyplot(fig3)
+        selected_points = plotly_events(fig3, click_event=True, hover_event=False)
+        st.plotly_chart(fig3, use_container_width=True)
+
+        # クリックされた日付のメモ表示
+        if selected_points:
+            clicked_date = selected_points[0]["x"]
+            matched_row = df[df["date"] == pd.to_datetime(clicked_date)]
+            if not matched_row.empty:
+                memo_text = matched_row.iloc[0]["memo"]
+                if pd.notna(memo_text) and memo_text.strip():
+                    st.info(f"📝 {clicked_date.date()} のメモ: {memo_text}")
+                else:
+                    st.info(f"📝 {clicked_date.date()} のメモはありません")
 
 
 
