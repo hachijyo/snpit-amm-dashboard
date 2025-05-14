@@ -12,11 +12,7 @@ matplotlib.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="SNPIT AMM", layout="wide")
 st.title("📊 SNPIT AMM")
-
-# ==== サブタイトル入力欄 ====
-subtitle = st.text_input("サブタイトルを入力してください", value="", placeholder="例: テスト運用中 / 日々更新中 など")
-if subtitle:
-    st.markdown(f"#### {subtitle}")
+st.markdown("rate:STPからSNTPへの交換レート、balance:流動性の全体volume、number:取引件数、in_from_operator:運営からの流動性追加")
 
 
 try:
