@@ -30,9 +30,8 @@ try:
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
 
-    # ==== 表を表示（元データ保持 + 表示加工） ====
+    # ==== 表を表示（元データ保持 + 表示加工 + カラム名そのまま） ====
 
-    # DataFrame準備
     display_df = df[[
         "date", "snpt", "rate", "balance", "number", "event", "memo",
         "in_total", "in_from_operator", "out_total", "out_to_operator"
@@ -40,36 +39,36 @@ try:
 
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
+
+    # 数値表示整形（元データ保持したまま丸め）
+    display_df["snpt"] = display_df["snpt"].round(4)
+    display_df["rate"] = display_df["rate"].round(2)
     display_df["number"] = display_df["number"].round(0).astype("Int64")
 
-    # ▼ snpt, rate 表示用カラムを追加（元データ保持）
-    display_df["snpt_display"] = display_df["snpt"].round(4)
-    display_df["rate_display"] = display_df["rate"].round(2)
-
-    # ▼ M表示関数（floatのまま保持しておく）
+    # M表示用関数（floatのまま）
     def format_to_m_or_zero(x):
         if pd.isna(x): return ""
-        return "0" if x == 0 else f"{x / 1e6:.2f}M"
+        if x == 0:
+            return "0"
+        return f"{x / 1e6:.2f}M"
 
-    # ▼ 表示用 styler 定義（表示用カラムを使う）
-    styled = display_df[[
-        "date", "snpt_display", "rate_display", "balance", "number", "event", "memo",
-        "in_total", "in_from_operator", "out_total", "out_to_operator"
-    ]].style.format({
+    # stylerで表示フォーマット指定（列名はそのまま）
+    styler = display_df.style.format({
         "balance": format_to_m_or_zero,
         "in_total": format_to_m_or_zero,
         "in_from_operator": format_to_m_or_zero,
         "out_total": format_to_m_or_zero,
         "out_to_operator": format_to_m_or_zero,
-        "snpt_display": "{:.4f}",
-        "rate_display": "{:.2f}",
+        "snpt": "{:.4f}",
+        "rate": "{:.2f}",
         "number": "{:,.0f}"
     }).set_properties(**{
         "text-align": "right"
     }, subset=["balance", "in_total", "in_from_operator", "out_total", "out_to_operator"])
 
-    # ▼ 表示（元データが見える！）
-    st.dataframe(styled, use_container_width=True, height=400)
+    # 表示（クリックで元値見える）
+    st.dataframe(styler, use_container_width=True, height=400)
+
 
 
 
