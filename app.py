@@ -93,7 +93,7 @@ try:
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("SNPT zandaka", color='tab:orange')
-    bar_width = 0.99
+    bar_width = 0.95
     ax2.bar(df["date"], df["balance_million"], width=bar_width, color='tab:orange', alpha=0.6, label="SNPT zandaka")
     ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{x:.0f}M'))
     ax2.tick_params(axis='y', labelcolor='tab:orange')
