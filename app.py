@@ -13,6 +13,12 @@ matplotlib.rcParams['axes.unicode_minus'] = False
 st.set_page_config(page_title="SNPIT AMM", layout="wide")
 st.title("📊 SNPIT AMM")
 
+# ==== サブタイトル入力欄 ====
+subtitle = st.text_input("サブタイトルを入力してください", value="", placeholder="例: テスト運用中 / 日々更新中 など")
+if subtitle:
+    st.markdown(f"#### {subtitle}")
+
+
 try:
     df = pd.read_csv("snpit_amm_log.csv", encoding="utf-8-sig")
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
@@ -98,60 +104,36 @@ try:
 
 
 
+    # ==== グラフ3（トークン価格と比率）====
+    fig3, ax1 = plt.subplots(figsize=(6, 4))
 
+    # SNPT価格（左軸）
+    ax1.plot(df["date"], df["snpt"], color="blue", label="SNPT")
+    ax1.set_ylabel("SNPT", color="blue")
+    ax1.tick_params(axis="y", labelcolor="blue")
 
+    # 比率（右軸）
+    ax2 = ax1.twinx()
+    ax2.plot(df["date"], df["rate"], color="orange", label="Rate")
+    ax2.set_ylabel("Rate", color="orange")
+    ax2.tick_params(axis="y", labelcolor="orange")
 
+    # X軸設定
+    ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    for label in ax1.get_xticklabels():
+        label.set_rotation(90)
 
-    # ==== グラフ3（Altair: SNPT + Rate同軸 + クリックでevent表示） ====
-
-    # 抽出
-    source = df[["date", "snpt", "rate", "event"]].copy()
-    selector = alt.selection_single(fields=["date"], nearest=True, empty="none")
-
-    # ベース
-    base = alt.Chart(source).encode(x=alt.X("date:T", axis=alt.Axis(title="Date")))
-
-    # SNPTライン（青）
-    line_snpt = base.mark_line(color="blue").encode(
-        y=alt.Y("snpt:Q", title="SNPT", axis=alt.Axis(titleColor="blue")),
-        tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
-    )
-
-    # Rateライン（オレンジ、同じY軸）
-    line_rate = base.mark_line(color="orange", strokeDash=[4, 2]).encode(
-        y="rate:Q",
-        tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
-    )
-
-    # クリック用透明ポイント
-    points = base.mark_point(opacity=0).add_selection(selector)
-
-    # event 表示
-    event_text = base.mark_text(align="left", dx=5, dy=-5, fontSize=12).encode(
-        y="rate:Q",
-        text="event:N"
-    ).transform_filter(selector)
-
-    # 統合
-    chart = alt.layer(
-        line_snpt,
-        line_rate,
-        points,
-        event_text
-    ).properties(
-        width=600,
-        height=400,
-        title="SNPT価格と交換レートの推移（クリックでevent表示）",
-        autosize="pad",
-        padding={"top": 10, "left": 40, "right": 40, "bottom": 30}
-    )
-
-    # 表示
+    # ==== 2行目（横2列：左にグラフ3）====
     row2_col1, row2_col2 = st.columns(2)
 
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
-        st.altair_chart(chart, use_container_width=True)
+        st.pyplot(fig3)
+
+
+
+
 
 
 
