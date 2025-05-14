@@ -105,25 +105,29 @@ try:
     # 日付選択（クリック）機能
     selector = alt.selection_single(fields=["date"], nearest=True, empty="none")
 
-    # SNPT価格ライン
+    # SNPT価格ライン（左軸）
     line_snpt = alt.Chart(source).mark_line(color="blue").encode(
         x="date:T",
-        y=alt.Y("snpt:Q", title="SNPT"),
+        y=alt.Y("snpt:Q", title="SNPT", axis=alt.Axis(titleColor="blue")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
     )
 
-    # Rateライン
+    # Rateライン（右軸に表示）
     line_rate = alt.Chart(source).mark_line(color="orange").encode(
         x="date:T",
-        y=alt.Y("rate:Q", title="Rate"),
+        y=alt.Y("rate:Q", title="Rate", axis=alt.Axis(titleColor="orange")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
+    ).transform_calculate(
+        y="datum.rate"
+    ).encode(
+        y=alt.Y("rate:Q", axis=alt.Axis(title="Rate", titleColor="orange")),
     )
 
+    # 二軸を重ねるための layer() で表示軸を揃える
+    base = alt.Chart(source).encode(x="date:T")
+
     # クリックポイント（透明マーカー）
-    points = alt.Chart(source).mark_point().encode(
-        x="date:T",
-        opacity=alt.value(0)
-    ).add_selection(selector)
+    points = base.mark_point(opacity=0).add_selection(selector)
 
     # eventテキスト表示
     event_text = alt.Chart(source).mark_text(
@@ -134,10 +138,17 @@ try:
         text="event:N"
     ).transform_filter(selector)
 
-    # 統合チャート
-    chart = (line_snpt + line_rate + points + event_text).properties(
+    # レイヤー統合（両軸＋イベントテキスト）
+    chart = alt.layer(
+        line_snpt,
+        line_rate.encode(y=alt.Y("rate:Q", axis=alt.Axis(title="Rate", titleColor="orange"), scale=alt.Scale(zero=False))),
+        points,
+        event_text
+    ).resolve_scale(
+        y="independent"
+    ).properties(
         width=600,
-        height=300,
+        height=400,
         title="SNPT価格と交換レートの推移（クリックでevent表示）"
     )
 
