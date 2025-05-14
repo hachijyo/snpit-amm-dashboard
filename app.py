@@ -30,9 +30,9 @@ try:
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
 
-    # ==== 表を表示（Stylerでフォーマット制御） ====
+    # ==== 表を表示（元データ保持 + 表示加工） ====
 
-    # 表示用 DataFrame 作成（元の数値保持）
+    # DataFrame準備
     display_df = df[[
         "date", "snpt", "rate", "balance", "number", "event", "memo",
         "in_total", "in_from_operator", "out_total", "out_to_operator"
@@ -40,30 +40,36 @@ try:
 
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
-    display_df["snpt"] = display_df["snpt"].round(4)
-    display_df["rate"] = display_df["rate"].round(2)
     display_df["number"] = display_df["number"].round(0).astype("Int64")
 
-    # 表示用フォーマット関数（0以外は M 表記）
-    def format_to_m_2decimals(x):
+    # ▼ snpt, rate 表示用カラムを追加（元データ保持）
+    display_df["snpt_display"] = display_df["snpt"].round(4)
+    display_df["rate_display"] = display_df["rate"].round(2)
+
+    # ▼ M表示関数（floatのまま保持しておく）
+    def format_to_m_or_zero(x):
         if pd.isna(x): return ""
         return "0" if x == 0 else f"{x / 1e6:.2f}M"
 
-    styler = display_df.style.format({
-        "balance": format_to_m_2decimals,
-        "in_total": format_to_m_2decimals,
-        "in_from_operator": format_to_m_2decimals,
-        "out_total": format_to_m_2decimals,
-        "out_to_operator": format_to_m_2decimals,
-        "rate": "{:.2f}",
-        "snpt": "{:.4f}",
+    # ▼ 表示用 styler 定義（表示用カラムを使う）
+    styled = display_df[[
+        "date", "snpt_display", "rate_display", "balance", "number", "event", "memo",
+        "in_total", "in_from_operator", "out_total", "out_to_operator"
+    ]].style.format({
+        "balance": format_to_m_or_zero,
+        "in_total": format_to_m_or_zero,
+        "in_from_operator": format_to_m_or_zero,
+        "out_total": format_to_m_or_zero,
+        "out_to_operator": format_to_m_or_zero,
+        "snpt_display": "{:.4f}",
+        "rate_display": "{:.2f}",
         "number": "{:,.0f}"
     }).set_properties(**{
         "text-align": "right"
     }, subset=["balance", "in_total", "in_from_operator", "out_total", "out_to_operator"])
 
-    # 表示
-    st.dataframe(styler, use_container_width=True, height=400)
+    # ▼ 表示（元データが見える！）
+    st.dataframe(styled, use_container_width=True, height=400)
 
 
 
