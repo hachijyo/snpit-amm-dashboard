@@ -29,33 +29,38 @@ try:
     df["in_user"] = df["in_total"] - df["in_from_operator"]
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
-    # ==== 表を表示 ====
+
+    # ==== 表を表示（加工処理） ====
+
+    # 表示用 DataFrame 作成
     display_df = df[[
-    "date",               # 日付
-    "snpt",               # トークン価格
-    "rate",               # 任意のレート評価
-    "balance",            # SNPT残高
-    "number",             # 取引件数
-    "event",              # イベント記録
-    "memo",               # 備考
-    "in_total",           # 総流入
-    "in_from_operator",   # 運営からの流入
-    "out_total",          # 総流出
-    "out_to_operator"     # 運営への流出
+        "date", "snpt", "rate", "balance", "number", "event", "memo",
+        "in_total", "in_from_operator", "out_total", "out_to_operator"
     ]].copy()
 
-
+    # 日付を降順
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
-    display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]] = \
-        display_df[["balance", "in_total", "in_from_operator", "out_total", "out_to_operator", "number"]].round(0).astype("Int64")
 
-    # 上書き処理は削除済み（以下は削除）
-    # display_df["rate"] = ""
-    # display_df["event"] = ""
-    # display_df["memo"] = ""
+    # snpt：そのまま
+    display_df["snpt"] = display_df["snpt"].round(4)
 
+    # rate：小数点2桁で四捨五入
+    display_df["rate"] = display_df["rate"].round(2)
+
+    # balance など：M表記（ただし 0 のときは "0"）
+    def format_m(value):
+        return "0" if value == 0 else f"{round(value / 1e6, 1)}M"
+
+    for col in ["balance", "in_total", "in_from_operator", "out_total", "out_to_operator"]:
+        display_df[col] = display_df[col].apply(format_m)
+
+    # number は整数表示
+    display_df["number"] = display_df["number"].round(0).astype("Int64")
+
+    # 表示
     st.dataframe(display_df, use_container_width=True, height=400)
+
 
 
     # ==== グラフ1 ====
