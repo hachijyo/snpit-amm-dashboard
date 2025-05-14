@@ -98,7 +98,8 @@ try:
 
 
 
-    # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック表示 + 軸ズレ対策） ====
+
+    # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック + 正しい左右軸） ====
 
     # 必要なカラムだけ抽出
     source = df[["date", "snpt", "rate", "event"]].copy()
@@ -106,43 +107,46 @@ try:
     # 日付選択（クリック）機能
     selector = alt.selection_single(fields=["date"], nearest=True, empty="none")
 
-    # SNPT価格ライン（左軸だが軸は非表示）
-    line_snpt = alt.Chart(source).mark_line(color="blue").encode(
-        x="date:T",
-        y=alt.Y("snpt:Q", axis=None),  # ← 左軸を非表示に
+    # ベースチャート（X軸定義のみ）
+    base = alt.Chart(source).encode(x=alt.X("date:T", axis=alt.Axis(title="Date")))
+
+    # SNPT価格ライン（左軸、青）
+    line_snpt = base.mark_line(color="blue").encode(
+        y=alt.Y("snpt:Q", title="SNPT", axis=alt.Axis(titleColor="blue")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
     )
 
-    # Rateライン（右軸表示）
-    line_rate = alt.Chart(source).mark_line(color="orange").encode(
-        x="date:T",
+    # Rateライン（右軸、オレンジ）
+    line_rate = base.mark_line(color="orange").encode(
         y=alt.Y("rate:Q", title="Rate", axis=alt.Axis(titleColor="orange")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
-    )
-
-    # 透明クリック用ポイント
-    points = alt.Chart(source).mark_point(opacity=0).encode(
-        x="date:T"
-    ).add_selection(selector)
-
-    # event表示（クリック対象に出す）
-    event_text = alt.Chart(source).mark_text(
-        align="left", dx=5, dy=-5, fontSize=12
     ).encode(
-        x="date:T",
+        y=alt.Y("rate:Q", axis=alt.Axis(title="Rate", titleColor="orange"))
+    ).interactive()
+
+    # 透明なクリックポイント
+    points = base.mark_point(opacity=0).add_selection(selector)
+
+    # event表示テキスト
+    event_text = base.mark_text(align="left", dx=5, dy=-5, fontSize=12).encode(
         y="rate:Q",
         text="event:N"
     ).transform_filter(selector)
 
-    # レイヤー統合 + スケール独立 + マージン補正
-    chart = (line_snpt + line_rate + points + event_text).resolve_scale(
+    # レイヤー統合（左右Y軸を独立に）
+    chart = alt.layer(
+        line_snpt,
+        line_rate,
+        points,
+        event_text
+    ).resolve_scale(
         y="independent"
     ).properties(
         width=600,
         height=400,
         title="SNPT価格と交換レートの推移（クリックでevent表示）",
-        autosize="pad",  # タイトルずれ対策
-        padding={"top": 10, "left": 30, "right": 30, "bottom": 30}
+        autosize="pad",
+        padding={"top": 10, "left": 40, "right": 40, "bottom": 30}
     )
 
     # ==== 2行目左側に表示 ====
