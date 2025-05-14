@@ -99,41 +99,35 @@ try:
 
 
 
-    # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック + 正しい左右軸） ====
 
-    # 必要なカラムだけ抽出
+    # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック表示 + 軸バグ修正） ====
+
     source = df[["date", "snpt", "rate", "event"]].copy()
-
-    # 日付選択（クリック）機能
     selector = alt.selection_single(fields=["date"], nearest=True, empty="none")
-
-    # ベースチャート（X軸定義のみ）
     base = alt.Chart(source).encode(x=alt.X("date:T", axis=alt.Axis(title="Date")))
 
-    # SNPT価格ライン（左軸、青）
+    # 左軸：SNPT
     line_snpt = base.mark_line(color="blue").encode(
         y=alt.Y("snpt:Q", title="SNPT", axis=alt.Axis(titleColor="blue")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
     )
 
-    # Rateライン（右軸、オレンジ）
+    # 右軸：Rate（正しく1回だけY指定）
     line_rate = base.mark_line(color="orange").encode(
         y=alt.Y("rate:Q", title="Rate", axis=alt.Axis(titleColor="orange")),
         tooltip=["date:T", "snpt:Q", "rate:Q", "event:N"]
-    ).encode(
-        y=alt.Y("rate:Q", axis=alt.Axis(title="Rate", titleColor="orange"))
-    ).interactive()
+    )
 
-    # 透明なクリックポイント
+    # 透明ポイント（クリック用）
     points = base.mark_point(opacity=0).add_selection(selector)
 
-    # event表示テキスト
+    # event表示
     event_text = base.mark_text(align="left", dx=5, dy=-5, fontSize=12).encode(
         y="rate:Q",
         text="event:N"
     ).transform_filter(selector)
 
-    # レイヤー統合（左右Y軸を独立に）
+    # レイヤー結合＋左右軸独立
     chart = alt.layer(
         line_snpt,
         line_rate,
@@ -149,12 +143,13 @@ try:
         padding={"top": 10, "left": 40, "right": 40, "bottom": 30}
     )
 
-    # ==== 2行目左側に表示 ====
+    # ==== 表示 ====
     row2_col1, row2_col2 = st.columns(2)
 
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
         st.altair_chart(chart, use_container_width=True)
+
 
 
 
