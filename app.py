@@ -32,7 +32,7 @@ try:
 
     # ==== 表を表示（Stylerでフォーマット制御） ====
 
-    # 表示用 DataFrame 作成（元の数値は保持したまま）
+    # 表示用 DataFrame 作成（元の数値保持）
     display_df = df[[
         "date", "snpt", "rate", "balance", "number", "event", "memo",
         "in_total", "in_from_operator", "out_total", "out_to_operator"
@@ -44,17 +44,17 @@ try:
     display_df["rate"] = display_df["rate"].round(2)
     display_df["number"] = display_df["number"].round(0).astype("Int64")
 
-    # 表示用フォーマット関数
-    def format_maybe_m(x):
+    # 表示用フォーマット関数（0以外は M 表記）
+    def format_to_m_2decimals(x):
         if pd.isna(x): return ""
-        return "0" if x == 0 else f"{round(x / 1e6, 1)}M"
+        return "0" if x == 0 else f"{x / 1e6:.2f}M"
 
     styler = display_df.style.format({
-        "balance": format_maybe_m,
-        "in_total": format_maybe_m,
-        "in_from_operator": format_maybe_m,
-        "out_total": format_maybe_m,
-        "out_to_operator": format_maybe_m,
+        "balance": format_to_m_2decimals,
+        "in_total": format_to_m_2decimals,
+        "in_from_operator": format_to_m_2decimals,
+        "out_total": format_to_m_2decimals,
+        "out_to_operator": format_to_m_2decimals,
         "rate": "{:.2f}",
         "snpt": "{:.4f}",
         "number": "{:,.0f}"
@@ -64,6 +64,7 @@ try:
 
     # 表示
     st.dataframe(styler, use_container_width=True, height=400)
+
 
 
 
