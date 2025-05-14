@@ -97,6 +97,7 @@ try:
         label.set_rotation(90)
 
 
+
     # ==== グラフ3（Altair: SNPT価格と交換レート + eventクリック表示 + 軸ズレ対策） ====
 
     # 必要なカラムだけ抽出
@@ -150,6 +151,7 @@ try:
     with row2_col1:
         st.subheader("SNPT価格と交換レートの推移")
         st.altair_chart(chart, use_container_width=True)
+
 
 
 
