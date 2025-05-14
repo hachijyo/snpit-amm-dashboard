@@ -99,7 +99,6 @@ try:
 
 
 
-
     # ==== グラフ3（Plotly: SNPT価格と交換レート + クリックでevent表示） ====
 
     fig3 = go.Figure()
@@ -122,18 +121,16 @@ try:
         line=dict(color="orange")
     ))
 
-    # レイアウト設定
+    # レイアウト設定（titlefont → title → dict に変更）
     fig3.update_layout(
         title="SNPT価格と交換レートの推移",
         xaxis=dict(title="Date"),
         yaxis=dict(
-            title="SNPT",
-            titlefont=dict(color="blue"),
-            tickfont=dict(color="blue"),
+            title=dict(text="SNPT", font=dict(color="blue")),
+            tickfont=dict(color="blue")
         ),
         yaxis2=dict(
-            title="Rate",
-            titlefont=dict(color="orange"),
+            title=dict(text="Rate", font=dict(color="orange")),
             tickfont=dict(color="orange"),
             overlaying="y",
             side="right"
@@ -153,7 +150,7 @@ try:
         selected = plotly_events(fig3, click_event=True, hover_event=False, override_height=0)
 
         if selected:
-            clicked_date = selected[0]["x"][:10]  # YYYY-MM-DDだけ取る
+            clicked_date = selected[0]["x"][:10]  # YYYY-MM-DDのみ抽出
             matched = df[df["date"].dt.strftime("%Y-%m-%d") == clicked_date]
             if not matched.empty:
                 event_msg = matched.iloc[0]["event"]
