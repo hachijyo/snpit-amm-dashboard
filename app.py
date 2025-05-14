@@ -30,7 +30,9 @@ try:
     df["out_user"] = df["out_total"] - df["out_to_operator"]
 
 
-    # ==== 表を表示（元データ保持 + 表示加工 + カラム名そのまま） ====
+
+
+    # ==== 表を表示（元データ保持 + 表示加工 + 正常クリック対応） ====
 
     display_df = df[[
         "date", "snpt", "rate", "balance", "number", "event", "memo",
@@ -40,34 +42,44 @@ try:
     display_df = display_df.sort_values("date", ascending=False)
     display_df["date"] = display_df["date"].dt.date
 
-    # 数値表示整形（元データ保持したまま丸め）
-    display_df["snpt"] = display_df["snpt"].round(4)
-    display_df["rate"] = display_df["rate"].round(2)
+    # 必要に応じて数値を丸め（表示には関数で制御するので型は維持）
     display_df["number"] = display_df["number"].round(0).astype("Int64")
 
-    # M表示用関数（floatのまま）
+    # ===== フォーマット関数 =====
+
+    # M表示（0なら"0"、floatなら "xx.xM"）
     def format_to_m_or_zero(x):
         if pd.isna(x): return ""
         if x == 0:
             return "0"
         return f"{x / 1e6:.2f}M"
 
-    # stylerで表示フォーマット指定（列名はそのまま）
+    # snpt: 小数点第4位まで、floatのまま保持
+    def format_snpt(x):
+        return f"{x:.4f}"
+
+    # rate: 小数点第2位まで、floatのまま保持
+    def format_rate(x):
+        return f"{x:.2f}"
+
+    # ===== Styler適用 =====
+
     styler = display_df.style.format({
         "balance": format_to_m_or_zero,
         "in_total": format_to_m_or_zero,
         "in_from_operator": format_to_m_or_zero,
         "out_total": format_to_m_or_zero,
         "out_to_operator": format_to_m_or_zero,
-        "snpt": "{:.4f}",
-        "rate": "{:.2f}",
+        "snpt": format_snpt,
+        "rate": format_rate,
         "number": "{:,.0f}"
     }).set_properties(**{
         "text-align": "right"
     }, subset=["balance", "in_total", "in_from_operator", "out_total", "out_to_operator"])
 
-    # 表示（クリックで元値見える）
+    # 表示（クリックで元float表示される！）
     st.dataframe(styler, use_container_width=True, height=400)
+
 
 
 
