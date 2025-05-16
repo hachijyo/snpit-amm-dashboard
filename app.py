@@ -12,7 +12,7 @@ matplotlib.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="SNPIT AMM", layout="wide")
 st.title("📊 SNPIT AMM")
-st.markdown("rate:STPからSNTPへの交換レート、balance:流動性の全体volume、number:取引件数、in_from_operator:運営からの流動性追加")
+st.markdown("rate:STPからSNPTへの交換レート、balance:流動性の全体volume、number:取引件数、in_from_operator:運営からの流動性追加")
 
 
 try:
