@@ -179,3 +179,5 @@ try:
 
 except Exception as e:
     st.error(f"❌ Error occurred: {e}")
+
+st.markdown('[⇒SNPIT AMMの見方(noteへ)](https://note.com/hachijyo/n/n12c9a279f440)')
